@@ -45,31 +45,35 @@ class AvatarFetcher
     }
 
     /**
-     * Fetch the Dicebear PNG from the API, save it to assets/avatars via
-     * Flarum's AvatarUploader, and persist the user record.
+     * Fetch the Dicebear PNG, save it to assets/avatars via Flarum's
+     * AvatarUploader, and persist the user record.
      *
-     * @throws \RuntimeException if the HTTP request fails or returns non-200.
+     * @throws \RuntimeException if the HTTP request fails or returns bad data.
      */
     public function fetchAndSave(User $user): void
     {
         $url = $this->buildUrl($user);
 
-        // Use a stream context so we get a proper error on failure.
         $context = stream_context_create([
             'http' => [
                 'timeout' => 10,
                 'header'  => "User-Agent: resofire-dicebear/1.0\r\n",
+                'ignore_errors' => false,
             ],
         ]);
 
         $imageData = @file_get_contents($url, false, $context);
 
-        if ($imageData === false || strlen($imageData) === 0) {
+        if ($imageData === false || strlen($imageData) < 100) {
             throw new \RuntimeException("Failed to fetch Dicebear avatar from: $url");
         }
 
-        // Build an Intervention Image instance from the raw binary data.
+        // Make sure we actually got image data, not an HTML error page.
         $image = $this->imageManager->make($imageData);
+
+        if ($image->width() === 0 || $image->height() === 0) {
+            throw new \RuntimeException("Dicebear returned an invalid image for: $url");
+        }
 
         // AvatarUploader::upload() resizes to 100×100, saves to
         // assets/avatars/<random>.png, and calls $user->changeAvatarPath().

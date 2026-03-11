@@ -34,17 +34,18 @@ class AddDicebearAvatar
             return $attributes;
         }
 
-        // Try to download and save it locally now (lazy fallback for existing users).
+        // Try to download and save locally now (lazy fallback for existing users).
         try {
             $this->fetcher->fetchAndSave($user);
-            // Reload the avatar URL from the now-updated user model.
-            $user->refresh();
+
+            // After saving, avatar_url holds the filename (e.g. "abc123.png").
+            // The getAvatarUrlAttribute accessor converts it to a full URL.
             $attributes['avatarUrl'] = $user->avatar_url
-                ? (string) $user->avatarUrl
+                ? $user->getAvatarUrlAttribute($user->getRawOriginal('avatar_url'))
                 : null;
         } catch (\Throwable $e) {
-            // If fetching fails (e.g. network down), fall back to the remote URL
-            // so the user still sees an avatar.
+            // Fetching failed — fall back to the remote Dicebear URL so the
+            // user still sees an avatar. Will retry on next page load.
             $attributes['avatarUrl'] = rtrim($this->settings->get('resofire-dicebear.api_url'), '/')
                 . '/9.x/'
                 . $this->settings->get('resofire-dicebear.avatar_style')
