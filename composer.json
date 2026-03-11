@@ -1,0 +1,29 @@
+{
+    "name": "resofire/dicebear",
+    "description": "Automatically generate and locally cache Dicebear avatars for Flarum users.",
+    "keywords": ["flarum", "dicebear", "avatar"],
+    "homepage": "https://github.com/resofire/flarum-dicebear",
+    "license": "MIT",
+    "require": {
+        "flarum/core": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Resofire\\Dicebear\\": "src/"
+        }
+    },
+    "extra": {
+        "flarum-extension": {
+            "title": "Resofire Dicebear Avatars",
+            "category": "feature",
+            "icon": {
+                "name": "fas fa-user-circle",
+                "backgroundColor": "#4D7CFE",
+                "color": "#fff"
+            }
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
