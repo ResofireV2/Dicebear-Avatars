@@ -34,32 +34,31 @@ class FlushAvatarsController implements RequestHandlerInterface
 
         $avatarDir = $this->paths->public . '/assets/avatars';
 
-        // Step 1: Clear avatar_url for all users whose value is a local filename
-        // (not a full URL). This covers png, svg, or any other extension.
+        // Step 1: Collect the filenames we are about to clear so we know
+        // exactly which files on disk belong to this extension.
+        $filesToDelete = User::whereNotNull('avatar_url')
+            ->where('avatar_url', 'not like', 'http%')
+            ->pluck('avatar_url')
+            ->toArray();
+
+        // Step 2: Clear those avatar_url records in the database.
         $affected = User::whereNotNull('avatar_url')
             ->where('avatar_url', 'not like', 'http%')
             ->update(['avatar_url' => null]);
 
-        // Step 2: Physically delete every file in assets/avatars.
-        // We own this directory — Flarum stores all local avatars here
-        // regardless of which extension saved them.
+        // Step 3: Delete only the files we collected — nothing else.
         $filesDeleted = 0;
-        if (is_dir($avatarDir)) {
-            foreach (scandir($avatarDir) as $filename) {
-                if ($filename === '.' || $filename === '..') {
-                    continue;
-                }
-                $filepath = $avatarDir . '/' . $filename;
-                if (is_file($filepath)) {
-                    unlink($filepath);
-                    $filesDeleted++;
-                }
+        foreach ($filesToDelete as $filename) {
+            $filepath = $avatarDir . '/' . basename($filename);
+            if (is_file($filepath)) {
+                unlink($filepath);
+                $filesDeleted++;
             }
         }
 
         return new JsonResponse([
-            'flushed'       => $affected,
-            'filesDeleted'  => $filesDeleted,
+            'flushed'      => $affected,
+            'filesDeleted' => $filesDeleted,
         ]);
     }
 }
