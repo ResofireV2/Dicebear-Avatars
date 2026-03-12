@@ -37,3 +37,9 @@ resofire-dicebear:
       rings: Rings
       shapes: Shapes
       thumbs: Thumbs
+    flush_label: Flush Saved Avatars
+    flush_help: Deletes all locally saved Dicebear avatars and clears them from user records. Avatars will be re-fetched and saved on next page load.
+    flush_button: Flush Avatars
+    flush_running: Flushing...
+    flush_success: "Done! {count} avatar(s) flushed."
+    flush_error: Something went wrong. Please try again.

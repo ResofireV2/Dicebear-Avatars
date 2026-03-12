@@ -14,6 +14,7 @@ namespace Resofire\Dicebear;
 use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Extend;
 use Flarum\User\Event\Registered;
+use Resofire\Dicebear\Api\FlushAvatarsController;
 
 return [
     (new Extend\Frontend('admin'))
@@ -21,11 +22,12 @@ return [
 
     new Extend\Locales(__DIR__.'/locale'),
 
-    // Lazy: inject URL only if no local avatar saved yet
     (new Extend\ApiSerializer(BasicUserSerializer::class))
         ->attributes(Api\AddDicebearAvatar::class),
 
-    // Eager: download and save avatar on registration
     (new Extend\Event())
         ->listen(Registered::class, Listener\SaveDicebearAvatarOnRegister::class),
+
+    (new Extend\Routes('api'))
+        ->post('/resofire-dicebear/flush', 'resofire-dicebear.flush', FlushAvatarsController::class),
 ];

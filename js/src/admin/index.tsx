@@ -28,5 +28,46 @@ app.initializers.add('resofire/dicebear', () => {
       label: app.translator.trans('resofire-dicebear.admin.api_url'),
       help: app.translator.trans('resofire-dicebear.admin.api_url_help'),
       type: 'text',
+    })
+    .registerSetting(() => {
+      let flushing = false;
+      let statusMessage = '';
+
+      const flush = async () => {
+        if (flushing) return;
+        flushing = true;
+        statusMessage = '';
+
+        try {
+          const response = await fetch(`${app.forum.attribute('apiUrl')}/resofire-dicebear/flush`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Token ${app.session.token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          const data = await response.json();
+          statusMessage = app.translator.trans('resofire-dicebear.admin.flush_success', { count: data.flushed }).toString();
+        } catch (e) {
+          statusMessage = app.translator.trans('resofire-dicebear.admin.flush_error').toString();
+        } finally {
+          flushing = false;
+          m.redraw();
+        }
+      };
+
+      return (
+        <div className="Form-group">
+          <label>{app.translator.trans('resofire-dicebear.admin.flush_label')}</label>
+          <p className="helpText">{app.translator.trans('resofire-dicebear.admin.flush_help')}</p>
+          <button className="Button Button--danger" onclick={flush} disabled={flushing}>
+            {flushing
+              ? app.translator.trans('resofire-dicebear.admin.flush_running')
+              : app.translator.trans('resofire-dicebear.admin.flush_button')}
+          </button>
+          {statusMessage ? <p style={{ marginTop: '8px' }}>{statusMessage}</p> : null}
+        </div>
+      );
     });
 });
