@@ -41,5 +41,5 @@ resofire-dicebear:
     flush_help: Deletes all locally saved Dicebear avatars and clears them from user records. Avatars will be re-fetched and saved on next page load.
     flush_button: Flush Avatars
     flush_running: Flushing...
-    flush_success: "Done! {count} avatar(s) flushed."
+    flush_success: "Done! {users} user record(s) cleared, {files} file(s) deleted."
     flush_error: Something went wrong. Please try again.

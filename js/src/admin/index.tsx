@@ -25,7 +25,7 @@ app.initializers.add('resofire/dicebear', () => {
       method: 'POST',
       url: `${app.forum.attribute('apiUrl')}/resofire-dicebear/flush`,
     }).then((data: any) => {
-      statusMessage = app.translator.trans('resofire-dicebear.admin.flush_success', { count: data.flushed }).toString();
+      statusMessage = app.translator.trans('resofire-dicebear.admin.flush_success', { users: data.flushed, files: data.filesDeleted }).toString();
     }).catch(() => {
       statusMessage = app.translator.trans('resofire-dicebear.admin.flush_error').toString();
     }).finally(() => {
